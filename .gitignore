@@ -30,7 +30,7 @@ android/key.properties
 android/local.properties
 android/gradle-wrapper.jar
 android/.cxx/
-*.iml
+
 *.jks
 *.keystore
 *.apk
@@ -53,6 +53,7 @@ android/.cxx/
 *.key
 *.mobileprovision
 *.orig.*
+*.mk
 
 # Node/npm
 metro-health-check*
@@ -60,3 +61,13 @@ npm-debug.*
 
 # Misc
 *.log
+
+# .gitignore
+android/
+ios/
+
+
+
+third_party/
+*.pb.cc
+*.pb.h
