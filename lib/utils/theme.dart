@@ -15,21 +15,26 @@ class AppTheme {
   static const Color warning = Color(0xFFFFC107);
   static const Color error = Color(0xFFE53935);
   
-  // Neutral Colors
-  static const Color background = Color(0xFFF5F7FA);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color divider = Color(0xFFE0E0E0);
+  // Neutral Colors - Light Theme
+  static const Color backgroundLight = Color(0xFFF5F7FA);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color textPrimaryLight = Color(0xFF212121);
+  static const Color textSecondaryLight = Color(0xFF757575);
   
+  // Neutral Colors - Dark Theme
+  static const Color backgroundDark = Color(0xFF121212);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color textPrimaryDark = Color(0xFFFAFAFA);
+  static const Color textSecondaryDark = Color(0xFFB0B0B0);
+
   static const ColorScheme lightColorScheme = ColorScheme(
     primary: primary,
     secondary: secondary,
     tertiary: accent,
-    background: background,
-    surface: surface,
-    onBackground: textPrimary,
-    onSurface: textPrimary,
+    background: backgroundLight,
+    surface: surfaceLight,
+    onBackground: textPrimaryLight,
+    onSurface: textPrimaryLight,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
     onTertiary: Colors.white,
@@ -37,17 +42,22 @@ class AppTheme {
     error: error,
     onError: Colors.white,
   );
-  
-  // Spacing System (based on 8px grid)
-  static const double spacing2 = 2.0;
-  static const double spacing4 = 4.0;
-  static const double spacing8 = 8.0;
-  static const double spacing12 = 12.0;
-  static const double spacing16 = 16.0;
-  static const double spacing24 = 24.0;
-  static const double spacing32 = 32.0;
-  static const double spacing48 = 48.0;
-  static const double spacing64 = 64.0;
+
+  static const ColorScheme darkColorScheme = ColorScheme(
+    primary: primary,
+    secondary: secondary,
+    tertiary: accent,
+    background: backgroundDark,
+    surface: surfaceDark,
+    onBackground: textPrimaryDark,
+    onSurface: textPrimaryDark,
+    onPrimary: Colors.white,
+    onSecondary: Colors.white,
+    onTertiary: Colors.white,
+    brightness: Brightness.dark,
+    error: error,
+    onError: Colors.white,
+  );
   
   // Border Radius
   static final BorderRadius borderRadiusSmall = BorderRadius.circular(4.0);
@@ -55,8 +65,8 @@ class AppTheme {
   static final BorderRadius borderRadiusLarge = BorderRadius.circular(12.0);
   static final BorderRadius borderRadiusXLarge = BorderRadius.circular(16.0);
   
-  // Shadows
-  static List<BoxShadow> shadowSmall = [
+  // Shadows - Light Theme
+  static List<BoxShadow> shadowSmallLight = [
     BoxShadow(
       color: Colors.black.withOpacity(0.1),
       blurRadius: 4,
@@ -64,7 +74,7 @@ class AppTheme {
     ),
   ];
   
-  static List<BoxShadow> shadowMedium = [
+  static List<BoxShadow> shadowMediumLight = [
     BoxShadow(
       color: Colors.black.withOpacity(0.1),
       blurRadius: 8,
@@ -72,9 +82,34 @@ class AppTheme {
     ),
   ];
   
-  static List<BoxShadow> shadowLarge = [
+  static List<BoxShadow> shadowLargeLight = [
     BoxShadow(
       color: Colors.black.withOpacity(0.1),
+      blurRadius: 16,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  // Shadows - Dark Theme
+  static List<BoxShadow> shadowSmallDark = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 4,
+      offset: const Offset(0, 2),
+    ),
+  ];
+  
+  static List<BoxShadow> shadowMediumDark = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
+    ),
+  ];
+  
+  static List<BoxShadow> shadowLargeDark = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
