@@ -20,8 +20,6 @@ dependencies:
   # State Management
   provider: ^6.1.1
   web_socket_channel: ^2.4.0
-  # Storage
-  shared_preferences: ^2.2.2
   
   # Animations
   lottie: ^2.7.0
@@ -36,6 +34,7 @@ dependencies:
   # Firebase
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.8
+  firebase_auth: ^4.17.8
 
 dev_dependencies:
   flutter_test:

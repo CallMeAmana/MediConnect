@@ -1,147 +1,121 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fbAuth;
 import '../models/user.dart';
-import '../services/storage_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final StorageService _storageService = StorageService();
-  
+  final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+
   User? _currentUser;
   bool _isAuthenticated = false;
   bool _isLoading = true;
-  
+
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
-  
+
   // Initialize and check if user is logged in
   Future<void> initAuth() async {
     _isLoading = true;
     notifyListeners();
-    
     try {
-      // Check if user is logged in using shared preferences
-      final userString = await _storageService.read('user');
-      
-      if (userString != null && userString.isNotEmpty) {
-        final userData = jsonDecode(userString);
-        _currentUser = User.fromJson(userData);
-        _isAuthenticated = true;
+      final fbUser = fbAuth.FirebaseAuth.instance.currentUser;
+      if (fbUser != null) {
+        final doc = await usersCollection.doc(fbUser.uid).get();
+        if (doc.exists) {
+          _currentUser = User.fromJson(doc.data() as Map<String, dynamic>);
+          _isAuthenticated = true;
+        } else {
+          _currentUser = null;
+          _isAuthenticated = false;
+        }
       } else {
-        _isAuthenticated = false;
         _currentUser = null;
+        _isAuthenticated = false;
       }
     } catch (e) {
-      _isAuthenticated = false;
       _currentUser = null;
+      _isAuthenticated = false;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
-  
+
   // Login user
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-    
     try {
-      // Get all registered users
-      final usersString = await _storageService.read('users');
-      
-      if (usersString != null && usersString.isNotEmpty) {
-        final List<dynamic> usersData = jsonDecode(usersString);
-        
-        // Find user with matching email and password
-        for (var userData in usersData) {
-          final user = User.fromJson(userData);
-          
-          if (user.email == email && user.password == password) {
-            _currentUser = user;
-            _isAuthenticated = true;
-            
-            // Save current user
-            await _storageService.write('user', jsonEncode(user.toJson()));
-            
-            _isLoading = false;
-            notifyListeners();
-            return true;
-          }
-        }
+      final credential = await fbAuth.FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final doc = await usersCollection.doc(credential.user!.uid).get();
+      if (doc.exists) {
+        _currentUser = User.fromJson(doc.data() as Map<String, dynamic>);
+        _isAuthenticated = true;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isAuthenticated = false;
+        _currentUser = null;
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
-      
-      _isLoading = false;
-      notifyListeners();
-      return false;
     } catch (e) {
+      _isAuthenticated = false;
+      _currentUser = null;
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
-  
+
   // Register user
   Future<bool> register(String name, String email, String password, UserType type) async {
     _isLoading = true;
     notifyListeners();
-    
     try {
-      // Check if user already exists
-      final usersString = await _storageService.read('users');
-      List<dynamic> usersData = [];
-      
-      if (usersString != null && usersString.isNotEmpty) {
-        usersData = jsonDecode(usersString);
-        
-        // Check if email already exists
-        for (var userData in usersData) {
-          final user = User.fromJson(userData);
-          
-          if (user.email == email) {
-            _isLoading = false;
-            notifyListeners();
-            return false; // Email already exists
-          }
-        }
-      }
-      
-      // Create new user
-      final newUser = User(
-        name: name,
+      // 1. Create user in Firebase Auth
+      final credential = await fbAuth.FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
-        type: type, id: '',
       );
-      
-      // Add user to list
-      usersData.add(newUser.toJson());
-      
-      // Save users list
-      await _storageService.write('users', jsonEncode(usersData));
-      
-      // Set current user and save
-      _currentUser = newUser;
+      // 2. Store additional info in Firestore (do NOT store password)
+      final user = User(
+        id: credential.user!.uid,
+        name: name,
+        email: email,
+        password: '', // Never store password
+        type: type,
+      );
+      await usersCollection.doc(credential.user!.uid).set(user.toJson());
+      _currentUser = user;
       _isAuthenticated = true;
-      await _storageService.write('user', jsonEncode(newUser.toJson()));
-      
       _isLoading = false;
       notifyListeners();
       return true;
+    } on fbAuth.FirebaseAuthException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
-  
+
   // Logout user
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
-    
     try {
-      await _storageService.delete('user');
+      await fbAuth.FirebaseAuth.instance.signOut();
       _currentUser = null;
       _isAuthenticated = false;
     } catch (e) {
@@ -151,35 +125,16 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // Password recovery simulation
   Future<bool> sendPasswordRecovery(String email) async {
     _isLoading = true;
     notifyListeners();
-    
     try {
-      // Check if user exists with given email
-      final usersString = await _storageService.read('users');
-      
-      if (usersString != null && usersString.isNotEmpty) {
-        final List<dynamic> usersData = jsonDecode(usersString);
-        
-        for (var userData in usersData) {
-          final user = User.fromJson(userData);
-          
-          if (user.email == email) {
-            // In a real app, would send an email here
-            // For demo, we just simulate successful sending
-            _isLoading = false;
-            notifyListeners();
-            return true;
-          }
-        }
-      }
-      
+      await fbAuth.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       _isLoading = false;
       notifyListeners();
-      return false; // Email not found
+      return true;
     } catch (e) {
       _isLoading = false;
       notifyListeners();

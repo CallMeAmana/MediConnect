@@ -4,10 +4,12 @@ import 'package:mediconnect/providers/auth_provider.dart';
 import 'package:mediconnect/screens/splash_screen.dart';
 import 'package:mediconnect/utils/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
