@@ -1,13 +1,15 @@
-# Flutter/Dart/Pub related
-.dart_tool/
-.packages
-.pub-cache/
-.flutter-plugins
-.flutter-plugins-dependencies
-.metadata
-
-# Build outputs
-build/
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.properties
+android/local.properties
+android/.cxx/
+*.jks
+*.keystore
+*.apk
+*.ap_*
 
 # iOS
 ios/Pods/
@@ -21,32 +23,15 @@ ios/Flutter/ephemeral/
 *.xcuserdata
 *.lock
 
-# Android
-android/.gradle/
-android/app/debug/
-android/app/profile/
-android/app/release/
-android/key.properties
-android/local.properties
-android/gradle-wrapper.jar
-android/.cxx/
-
-*.jks
-*.keystore
-*.apk
-*.ap_*
-
-# VS Code
-.vscode/
-
 # IntelliJ/Android Studio
 .idea/
 *.iml
 
-# Mac
-.DS_Store
+# VS Code
+.vscode/
 
-# Others
+# Miscellaneous
+.DS_Store
 *.pem
 *.p8
 *.p12
@@ -54,20 +39,13 @@ android/.cxx/
 *.mobileprovision
 *.orig.*
 *.mk
+*.log
 
 # Node/npm
 metro-health-check*
 npm-debug.*
 
-# Misc
-*.log
-
-# .gitignore
-android/
-ios/
-
-
-
+# Protobuf
 third_party/
 *.pb.cc
 *.pb.h
