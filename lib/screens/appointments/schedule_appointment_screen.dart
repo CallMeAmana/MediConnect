@@ -4,6 +4,7 @@ import 'package:mediconnect/models/appointment.dart';
 import 'package:mediconnect/providers/appointment_provider.dart';
 import 'package:mediconnect/providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ScheduleAppointmentScreen extends StatefulWidget {
   final String doctorId;
@@ -90,13 +91,28 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
     if (!mounted) return;
 
     if (success) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Appointment scheduled successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      try {
+        // Add to Firestore as well
+        await FirebaseFirestore.instance.collection('appointments').add(appointment.toMap());
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Appointment scheduled successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Appointment scheduled locally but failed to sync to cloud'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     } else {
       setState(() {
         _isLoading = false;

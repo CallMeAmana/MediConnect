@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mediconnect/providers/appointment_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mediconnect/providers/auth_provider.dart';
 import 'package:mediconnect/screens/splash_screen.dart';
@@ -9,7 +10,15 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => AppointmentProvider()),
+      // Add other providers here
+    ],
+    child: MyApp(),
+  ),
+);
 }
 
 class MyApp extends StatelessWidget {

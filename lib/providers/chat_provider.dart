@@ -11,8 +11,7 @@ class ChatProvider with ChangeNotifier {
 
   Future<bool> sendMessage(Message message) async {
     try {
-      // TODO: Implement API call
-      final chatId = _getChatId(message.senderId, message.receiverId);
+      final chatId = _getChatId(message.senderId, message.receiverId ?? '');
       if (!_chats.containsKey(chatId)) {
         _chats[chatId] = [];
       }
@@ -21,24 +20,6 @@ class ChatProvider with ChangeNotifier {
       return true;
     } catch (e) {
       print('Error sending message: $e');
-      return false;
-    }
-  }
-
-  Future<bool> markAsRead(String messageId, String chatId) async {
-    try {
-      final messages = _chats[chatId];
-      if (messages != null) {
-        final index = messages.indexWhere((m) => m.id == messageId);
-        if (index != -1) {
-          messages[index] = messages[index].copyWith(isRead: true);
-          notifyListeners();
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      print('Error marking message as read: $e');
       return false;
     }
   }

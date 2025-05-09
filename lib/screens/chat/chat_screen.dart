@@ -52,8 +52,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final message = Message(
       id: const Uuid().v4(),
       senderId: authProvider.currentUser!.id,
-      receiverId: widget.recipientId,
+      senderName: authProvider.currentUser!.name,
       content: text,
+      timestamp: DateTime.now(),
+      receiverId: widget.recipientId,
+      isForumPost: false,
     );
 
     _messageController.clear();

@@ -1,59 +1,97 @@
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
   final String id;
   final String senderId;
-  final String receiverId;
+  final String senderName;
   final String content;
   final DateTime timestamp;
-  final bool isRead;
+  final String? receiverId; // null for forum posts
+  final bool isForumPost;
+  final List<String>? likes;
+  final List<Message>? replies;
 
   Message({
     required this.id,
     required this.senderId,
-    required this.receiverId,
+    required this.senderName,
     required this.content,
-    DateTime? timestamp,
-    this.isRead = false,
-  }) : this.timestamp = timestamp ?? DateTime.now();
+    required this.timestamp,
+    this.receiverId,
+    this.isForumPost = false,
+    this.likes,
+    this.replies,
+  });
 
-  factory Message.fromJson(Map<String, dynamic> json) {
+  factory Message.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Message(
-      id: json['id'],
-      senderId: json['senderId'],
-      receiverId: json['receiverId'],
-      content: json['content'],
-      timestamp: DateTime.parse(json['timestamp']),
-      isRead: json['isRead'] ?? false,
+      id: doc.id,
+      senderId: data['senderId'] ?? '',
+      senderName: data['senderName'] ?? '',
+      content: data['content'] ?? '',
+      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      receiverId: data['receiverId'],
+      isForumPost: data['isForumPost'] ?? false,
+      likes: List<String>.from(data['likes'] ?? []),
+      replies: data['replies'] != null
+          ? List<Message>.from(
+              (data['replies'] as List).map((x) => Message.fromMap(x)))
+          : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      id: map['id'] ?? '',
+      senderId: map['senderId'] ?? '',
+      senderName: map['senderName'] ?? '',
+      content: map['content'] ?? '',
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      receiverId: map['receiverId'],
+      isForumPost: map['isForumPost'] ?? false,
+      likes: List<String>.from(map['likes'] ?? []),
+      replies: map['replies'] != null
+          ? List<Message>.from(
+              (map['replies'] as List).map((x) => Message.fromMap(x)))
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'senderId': senderId,
-      'receiverId': receiverId,
+      'senderName': senderName,
       'content': content,
-      'timestamp': timestamp.toIso8601String(),
-      'isRead': isRead,
+      'timestamp': Timestamp.fromDate(timestamp),
+      'receiverId': receiverId,
+      'isForumPost': isForumPost,
+      'likes': likes ?? [],
+      'replies': replies?.map((x) => x.toMap()).toList(),
     };
   }
 
   Message copyWith({
     String? id,
     String? senderId,
-    String? receiverId,
+    String? senderName,
     String? content,
     DateTime? timestamp,
-    bool? isRead,
+    String? receiverId,
+    bool? isForumPost,
+    List<String>? likes,
+    List<Message>? replies,
   }) {
     return Message(
       id: id ?? this.id,
       senderId: senderId ?? this.senderId,
-      receiverId: receiverId ?? this.receiverId,
+      senderName: senderName ?? this.senderName,
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
-      isRead: isRead ?? this.isRead,
+      receiverId: receiverId ?? this.receiverId,
+      isForumPost: isForumPost ?? this.isForumPost,
+      likes: likes ?? this.likes,
+      replies: replies ?? this.replies,
     );
   }
 }

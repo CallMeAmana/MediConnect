@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum AppointmentStatus {
   pending,
@@ -77,5 +77,43 @@ class Appointment {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  // Firestore-compatible fromMap
+  factory Appointment.fromMap(Map<String, dynamic> map, String docId) {
+    return Appointment(
+      id: docId,
+      patientId: map['patientId'],
+      doctorId: map['doctorId'],
+      dateTime: (map['dateTime'] is Timestamp)
+          ? (map['dateTime'] as Timestamp).toDate()
+          : DateTime.parse(map['dateTime']),
+      reason: map['reason'],
+      status: AppointmentStatus.values.firstWhere(
+        (e) => e.toString().split('.').last == map['status'],
+        orElse: () => AppointmentStatus.pending,
+      ),
+      createdAt: (map['createdAt'] is Timestamp)
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.parse(map['createdAt']),
+      updatedAt: map['updatedAt'] != null
+          ? (map['updatedAt'] is Timestamp
+              ? (map['updatedAt'] as Timestamp).toDate()
+              : DateTime.parse(map['updatedAt']))
+          : null,
+    );
+  }
+
+  // Firestore-compatible toMap
+  Map<String, dynamic> toMap() {
+    return {
+      'patientId': patientId,
+      'doctorId': doctorId,
+      'dateTime': dateTime,
+      'reason': reason,
+      'status': status.toString().split('.').last,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
   }
 }
