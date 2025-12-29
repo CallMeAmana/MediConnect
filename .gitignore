@@ -49,3 +49,4 @@ npm-debug.*
 third_party/
 *.pb.cc
 *.pb.h
+.env
